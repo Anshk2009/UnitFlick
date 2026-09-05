@@ -1,179 +1,256 @@
+<div align="center">
+
+<img src="icons/icon128.png" width="76" alt="UnitFlick">
+
 # UnitFlick
 
-Highlight a value on any webpage, right-click, and convert it.
+**Highlight a value on any webpage, right-click, and convert it.**
 
-`20 km` → `12.43 mi` · `72°F` → `22.22 °C` · `₹5,000` → `$60.24`
+No accounts. No analytics. No dependencies. No API keys to leak.
 
-UnitFlick is a Manifest V3 browser extension with no accounts, no analytics and
-no dependencies. Unit conversions happen entirely on your device; only currency
-conversion touches the network, and only to fetch a public exchange-rate table.
+[![check](https://github.com/Anshk2009/UnitFlick/actions/workflows/check.yml/badge.svg)](https://github.com/Anshk2009/UnitFlick/actions/workflows/check.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![manifest v3](https://img.shields.io/badge/manifest-v3-4a5bd7)](manifest.json)
+[![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](package.json)
+[![tests](https://img.shields.io/badge/tests-54%20passing-brightgreen)](test)
 
-## Features
+<img src="docs/card.svg" width="620" alt="A sentence on a webpage with '20 km' highlighted, the UnitFlick context menu, and the result card showing 12.43 mi">
 
-- Right-click → **UnitFlick → Convert** on any selected text
-- Length, mass, temperature, area, volume, speed and digital storage, all local
-- Currency conversion for 27 currencies, with the rate timestamp always shown
-- Result card appears next to your selection, with a copy button
-- Settings for target currency, unit system, precision and which categories are on
-- Stale or unavailable rates are labelled as such — never silently guessed
+<sub><i>Illustration of the result card, not a screenshot.</i></sub>
 
-## Supported units
+</div>
 
-| Category | Units |
-| --- | --- |
-| Length | mm, cm, m, km, in, ft, yd, mi |
-| Mass | mg, g, kg, oz, lb |
-| Temperature | °C, °F, K |
-| Area | m², km², ft², acres |
-| Volume | mL, L, tsp, tbsp, cup, gal |
-| Speed | km/h, m/s, mph |
-| Digital storage | B, KB, MB, GB, TB |
+---
 
-Common spellings and plurals work too: `kilometres`, `lbs`, `square feet`,
-`fahrenheit`, `kph`.
+```
+20 km   →  12.43 mi          72°F     →  22.22 °C
+$250    →  225 EUR           ₹5,000   →  $60.24
+10 lbs  →  4.54 kg           500 MB   →  0.5 GB
+```
 
-Two notes on conventions:
+Unit conversions are pure arithmetic and never touch the network. Currency is
+the only thing that does, and it fetches one public rate table from a fixed
+URL — your selection is never sent anywhere.
 
-- Storage uses decimal SI sizes, so 1 KB = 1000 B. That is what network speeds
-  and drive manufacturers use; your file manager may disagree.
-- US customary volumes (cup, tsp, tbsp, gal), not imperial ones.
+## Why another converter?
+
+Most of them want a permission on every site you visit, ship an API key in
+plain sight, or quietly build a history of everything you highlight. UnitFlick
+was built the other way round: work out the smallest thing that could possibly
+do the job, then make sure it can't do anything else.
+
+- **It cannot read pages you haven't used it on.** No `*://*/*` permission, no
+  always-on content script. `activeTab` is granted per click and expires.
+- **There is nothing for a page to talk to.** No message listener anywhere —
+  the only entry point is the browser's own context-menu event.
+- **There is no key to steal.** The rate provider is keyless by design; a
+  provider needing one would have meant running a server.
+- **It keeps no history.** One result in session storage, overwritten each
+  time, gone when you close the browser.
+
+## Install
+
+Not on the extension stores yet, so load it from source:
+
+```bash
+git clone https://github.com/Anshk2009/UnitFlick.git
+```
+
+1. Open `chrome://extensions` (or `edge://extensions`)
+2. Turn on **Developer mode**
+3. **Load unpacked** → pick the cloned folder
+
+Chromium browsers (Chrome, Edge, Brave, Arc, Opera). Firefox is on the roadmap.
+
+## Use it
+
+Highlight → right-click → **UnitFlick → Convert**.
+
+The card appears next to your selection. **Copy** takes the result,
+**Escape** dismisses it, and it disappears on its own after 12 seconds. The
+toolbar icon shows the last result if you missed it.
 
 UnitFlick picks the target for you: it converts into the measurement system you
-are *not* already looking at, biased toward your preferred system in settings.
-`20 km` gives miles; `20 mi` gives kilometres.
+are *not* already looking at, biased toward the one you set in preferences.
+`20 km` gives miles, `20 mi` gives kilometres.
 
-## Supported currencies
+## What it understands
 
-USD, EUR, GBP, INR, JPY, CAD, AUD, CHF, CNY, SGD, NZD, SEK, NOK, DKK, PLN, ZAR,
-BRL, MXN, AED, KRW, HKD, TRY, RUB, THB, IDR, PHP, VND.
+<table>
+<tr><th align="left">Category</th><th align="left">Units</th></tr>
+<tr><td>Length</td><td><code>mm</code> <code>cm</code> <code>m</code> <code>km</code> <code>in</code> <code>ft</code> <code>yd</code> <code>mi</code></td></tr>
+<tr><td>Mass</td><td><code>mg</code> <code>g</code> <code>kg</code> <code>oz</code> <code>lb</code></td></tr>
+<tr><td>Temperature</td><td><code>°C</code> <code>°F</code> <code>K</code></td></tr>
+<tr><td>Area</td><td><code>m²</code> <code>km²</code> <code>ft²</code> <code>acres</code></td></tr>
+<tr><td>Volume</td><td><code>mL</code> <code>L</code> <code>tsp</code> <code>tbsp</code> <code>cup</code> <code>gal</code></td></tr>
+<tr><td>Speed</td><td><code>km/h</code> <code>m/s</code> <code>mph</code></td></tr>
+<tr><td>Storage</td><td><code>B</code> <code>KB</code> <code>MB</code> <code>GB</code> <code>TB</code></td></tr>
+</table>
 
-Both symbols (`$250`, `₹5,000`, `€90`) and codes (`100 USD`) are recognised.
-Ambiguous symbols default to the largest user: `$` is USD and `¥` is JPY. To
-convert Canadian dollars or yuan, highlight the code instead — `250 CAD`.
+Spellings and plurals work too — `kilometres`, `lbs`, `square feet`,
+`fahrenheit`, `kph`. So do European decimals: `1.234,56 kg` reads as 1234.56.
 
-## Installing
+**27 currencies:** USD, EUR, GBP, INR, JPY, CAD, AUD, CHF, CNY, SGD, NZD, SEK,
+NOK, DKK, PLN, ZAR, BRL, MXN, AED, KRW, HKD, TRY, RUB, THB, IDR, PHP, VND —
+by symbol (`$250`, `₹5,000`) or code (`100 USD`).
 
-Not on the extension stores yet. To run it from source:
+<details>
+<summary><b>Two conventions worth knowing</b></summary>
 
-1. `git clone https://github.com/Anshk2009/UnitFlick.git`
-2. Open `chrome://extensions` (or `edge://extensions`)
-3. Turn on **Developer mode**
-4. **Load unpacked** → select the cloned folder
+<br>
 
-Chrome, Edge and other Chromium browsers. Firefox is not supported yet — see
-the roadmap.
+**Storage is decimal.** 1 KB = 1000 B, the way network speeds and drive
+manufacturers count. Your file manager may show something different because it
+uses 1024.
+
+**Ambiguous symbols pick the largest user.** `$` is USD and `¥` is JPY. For
+Canadian dollars or yuan, highlight the code instead: `250 CAD`. Guessing from
+the page's language would be worse — it would be wrong silently.
+
+</details>
+
+## Settings
+
+Right-click the toolbar icon → **Options**, or the **Settings** link in the popup.
+
+| Setting | Default |
+| --- | --- |
+| Convert currencies into | USD |
+| Preferred unit system | Metric |
+| Decimal places | 2 |
+| Refresh exchange rates every | 6 hours |
+| Enabled conversions | All |
+
+Every value is validated on the way in *and* on the way out, so a corrupted
+stored value can never reach the converter.
+
+## Privacy
+
+The short version: unit conversions never leave your device, and currency
+conversion makes exactly one request:
+
+```http
+GET https://open.er-api.com/v6/latest/USD
+```
+
+No query parameters. Nothing from your selection. No cookies
+(`credentials: 'omit'`) and no referrer. The whole USD table is downloaded and
+the maths happens locally, so the provider cannot tell what you converted or
+how much of it — at most once every 6 hours, and never more than once a minute.
+
+Full detail, including exactly what is stored and for how long, is in
+[PRIVACY.md](PRIVACY.md).
+
+## Security
+
+Every webpage is assumed hostile, and so is every byte the API returns.
+
+The design and threat model are in [SECURITY.md](SECURITY.md), and the full
+0.1.0 review — eight findings, each with severity, fix and retest — is in
+[docs/security-audit-0.1.0.md](docs/security-audit-0.1.0.md).
+
+The checklist is executable rather than aspirational:
+
+```bash
+npm run audit
+```
+
+It fails the build on secrets, `eval`, `innerHTML`, inline scripts, `http://`
+URLs, computed fetch arguments, unexpected permissions, a weakened CSP, or a
+manifest pointing at a file that isn't there.
 
 ## Development
 
-There is no build step. The source in `src/` is what runs.
+No build step. What is in `src/` is what runs.
 
 ```bash
-npm test          # unit, integration and security tests (Node's test runner)
-npm run audit     # the pre-release security checklist
-npm run check     # both
+npm test      # 54 tests, Node's built-in runner
+npm run audit # 12 security checks
+npm run check # both
+npm run build # package dist/unitflick-<version>.zip
 ```
 
-Node 18+ for the test runner. No packages to install — `package.json` has no
-dependencies, and none should be added without a good reason.
+Node 18+. Nothing to install — `package.json` has no dependencies and none
+should be added lightly. Icons are generated, not committed as opaque
+binaries: `python tools/make-icons.py`.
 
-Icons are generated, not hand-committed binaries: `python tools/make-icons.py`.
+<details>
+<summary><b>Architecture</b></summary>
 
-## Architecture
+<br>
 
 ```
 manifest.json              permissions, CSP, entry points
 src/
   background/
-    service-worker.js      context menu, the only entry point into the extension
+    service-worker.js      context menu — the only entry point
     convert.js             decides what a selection becomes
   content/
-    overlay.js             the on-page result card (injected on demand)
+    overlay.js             the on-page result card, injected on demand
   converters/
-    units.js               unit tables and the conversion maths
-    currency.js            currency codes, symbols, and the rate arithmetic
+    units.js               unit tables and conversion maths
+    currency.js            codes, symbols, rate arithmetic
   services/
     rates.js               the only file that touches the network
   utils/
-    parse.js               untrusted text -> {value, symbol}
-    settings.js            preferences, validated in both directions
+    parse.js               untrusted text → {value, symbol}
+    settings.js            preferences, validated both ways
     format.js              number and timestamp formatting
-  popup/                   toolbar popup: shows the last result
+  popup/                   toolbar popup
   options/                 settings page
 tools/
-  audit.js                 security checklist you can run
+  audit.js                 the security checklist
+  build.py                 release packaging
   make-icons.py            icon generator
 ```
 
 The layers do not reach across each other. `converters/` and `utils/` are pure
-functions with no browser APIs, which is why they are easy to test. Only
-`rates.js` makes network calls. Only `overlay.js` and the two HTML pages touch
-the DOM.
+functions that never touch `chrome.*` or the DOM, which is why they are easy to
+test. Only `rates.js` makes network calls. Only `overlay.js` and the two HTML
+pages touch the DOM.
 
-Adding a unit is one line in a table in `units.js`. Adding a currency is one
-entry in the list in `currency.js`.
+Because `overlay.js` is injected with `executeScript({ func })`, it has to stay
+self-contained — no imports, no closure variables.
 
-## Permissions
+**Adding a unit** is one line in a table in `units.js`. **Adding a currency**
+is one entry in the list in `currency.js`.
+
+</details>
+
+<details>
+<summary><b>Permissions, and why each one is there</b></summary>
+
+<br>
 
 | Permission | Why |
 | --- | --- |
 | `contextMenus` | The right-click menu item |
 | `storage` | Settings and the cached rate table |
-| `activeTab` | Show the result card in the tab you just used the menu in |
+| `activeTab` | Show the card in the tab you just used the menu in |
 | `scripting` | Inject that card |
 | `https://open.er-api.com/` | The only host UnitFlick may contact |
 
-There is no `*://*/*` host permission and no `tabs` permission. UnitFlick
-cannot read pages you have not explicitly used it on.
+Note what is missing: no `tabs`, no `webRequest`, no `cookies`, no host
+permission on webpages. `tools/audit.js` fails the build if any of those appear.
 
-## Exchange rates
-
-Rates come from [ExchangeRate-API](https://www.exchangerate-api.com/)'s free
-keyless endpoint, `open.er-api.com`. Keyless was a requirement, not a
-convenience: any key shipped inside an extension is public, so a provider
-needing one would have meant running a proxy server.
-
-One fixed request, `GET https://open.er-api.com/v6/latest/USD`, with no query
-parameters and nothing from your selection in it. The full USD table is
-downloaded and the arithmetic happens locally, so the provider cannot tell what
-you converted. Cached for 6 hours by default; shown but labelled stale past
-that; discarded after 7 days. A failed lookup is an error, never a guess.
-
-## Privacy
-
-No accounts, no analytics, no telemetry, no history. The full detail —
-including exactly what is stored and for how long — is in
-[PRIVACY.md](PRIVACY.md).
-
-## Security
-
-Every webpage is treated as hostile, and so is every API response. There is no
-message listener for a page to forge on, no `innerHTML` anywhere, no `eval`, no
-secrets to leak, and one hardcoded URL. The threat model and reporting process
-are in [SECURITY.md](SECURITY.md).
-
-## Testing
-
-```bash
-npm run check
-```
-
-Covers the parser (malformed input, Unicode, oversized selections, ReDoS
-attempts), the converters (every category, round trips, boundary values), the
-rate service (malformed and hostile API responses, HTTP errors, rate limits),
-and the end-to-end pipeline (XSS payloads, settings tampering).
+</details>
 
 ## Roadmap
 
-- Firefox support (MV3 differences around the service worker and `browser.*`)
-- A keyboard shortcut, so the mouse is optional
-- Choosing the target unit from the result card, not just settings
-- Better handling of ambiguous symbols (`$`, `¥`, `kr`)
-- Compound units like `5 ft 9 in`
+- [ ] Firefox support (MV3 service-worker and `browser.*` differences)
+- [ ] Keyboard shortcut, so the mouse is optional
+- [ ] Pick the target unit from the card, not just settings
+- [ ] Better handling of ambiguous symbols (`$`, `¥`, `kr`)
+- [ ] Compound units — `5 ft 9 in`
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Small, focused pull requests welcome.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers setup, house style, and the handful
+of things that will get a PR turned down (new dependencies, `innerHTML`, new
+permissions, analytics).
+
+Security issues: please use [SECURITY.md](SECURITY.md) rather than a public issue.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+[MIT](LICENSE) © Ansh Kashyap
