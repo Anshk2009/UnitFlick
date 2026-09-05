@@ -16,11 +16,22 @@ running in the background on any site.
 
 ## What UnitFlick stores
 
-Three things, all in your own browser:
+Three things, all stored by the browser rather than by any server of mine:
 
 | What | Where | Why | How long |
 | --- | --- | --- | --- |
 | Your settings | `chrome.storage.sync` | Target currency, unit system, precision, enabled categories, refresh interval | Until you change them or uninstall |
+
+One honest caveat about that first row: `chrome.storage.sync` means the browser
+syncs those settings to your other signed-in devices, which is the point — but
+it also means they pass through your browser vendor's sync service, the same
+way your bookmarks do. That is five short values with no personal information
+in them (see the validation in
+[`src/utils/settings.js`](src/utils/settings.js), which is why none of them can
+ever be anything but a currency code, a unit system, or a small number). If you
+would rather they never left the device, sign out of browser sync or turn off
+extension syncing in your browser's settings.
+
 | Exchange-rate table | `chrome.storage.local` | So a conversion does not need a network call every time | Refreshed on the interval you set (default 6 hours); a table older than 7 days is discarded rather than used |
 | The most recent conversion result | `chrome.storage.session` | So the toolbar popup can show the result you just got | Overwritten by the next conversion, and cleared when you close the browser |
 
