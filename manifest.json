@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "UnitFlick",
+  "version": "0.1.0",
+  "description": "Highlight text, right-click, convert. Units and currencies, privacy-first.",
+  "homepage_url": "https://github.com/Anshk2009/UnitFlick",
+
+  "permissions": [],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'"
+  }
+}
