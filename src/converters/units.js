@@ -28,6 +28,42 @@ const UNITS = {
       lb: { factor: 453.59237, label: 'lb', system: 'imperial', aliases: ['lbs', 'pound', 'pounds'] },
     },
   },
+  area: {
+    units: {
+      m2: { factor: 1, label: 'm²', system: 'metric', aliases: ['sqm', 'sq m', 'square meter', 'square metre', 'square meters', 'square metres'] },
+      km2: { factor: 1e6, label: 'km²', system: 'metric', aliases: ['sqkm', 'sq km', 'square kilometer', 'square kilometre'] },
+      ft2: { factor: 0.09290304, label: 'ft²', system: 'imperial', aliases: ['sqft', 'sq ft', 'square foot', 'square feet'] },
+      acre: { factor: 4046.8564224, label: 'acres', system: 'imperial', aliases: ['acres'] },
+    },
+  },
+  volume: {
+    units: {
+      ml: { factor: 0.001, label: 'mL', system: 'metric', aliases: ['milliliter', 'millilitre', 'milliliters', 'millilitres'] },
+      l: { factor: 1, label: 'L', system: 'metric', aliases: ['liter', 'litre', 'liters', 'litres'] },
+      tsp: { factor: 0.00492892159375, label: 'tsp', system: 'imperial', aliases: ['teaspoon', 'teaspoons'] },
+      tbsp: { factor: 0.01478676478125, label: 'tbsp', system: 'imperial', aliases: ['tablespoon', 'tablespoons'] },
+      cup: { factor: 0.2365882365, label: 'cup', system: 'imperial', aliases: ['cups'] },
+      gal: { factor: 3.785411784, label: 'gal', system: 'imperial', aliases: ['gallon', 'gallons'] },
+    },
+  },
+  speed: {
+    units: {
+      kmh: { factor: 1 / 3.6, label: 'km/h', system: 'metric', aliases: ['km/h', 'kph', 'kmph'] },
+      mps: { factor: 1, label: 'm/s', system: 'metric', aliases: ['m/s'] },
+      mph: { factor: 0.44704, label: 'mph', system: 'imperial', aliases: ['mi/h'] },
+    },
+  },
+  // Decimal (SI) sizes: 1 KB = 1000 B. Called out in the README so nobody is
+  // surprised that this disagrees with what a file manager shows.
+  digital: {
+    units: {
+      b: { factor: 1, label: 'B', system: 'metric', aliases: ['byte', 'bytes'] },
+      kb: { factor: 1e3, label: 'KB', system: 'metric', aliases: ['kilobyte', 'kilobytes'] },
+      mb: { factor: 1e6, label: 'MB', system: 'metric', aliases: ['megabyte', 'megabytes'] },
+      gb: { factor: 1e9, label: 'GB', system: 'metric', aliases: ['gigabyte', 'gigabytes'] },
+      tb: { factor: 1e12, label: 'TB', system: 'metric', aliases: ['terabyte', 'terabytes'] },
+    },
+  },
 };
 
 // Temperature is scale + offset, not just a scale, so it cannot live in the
@@ -82,6 +118,11 @@ function unitSystem(category, id) {
 const PAIRS = {
   mm: 'in', cm: 'in', m: 'ft', km: 'mi', in: 'cm', ft: 'm', yd: 'm', mi: 'km',
   mg: 'oz', g: 'oz', kg: 'lb', oz: 'g', lb: 'kg',
+  m2: 'ft2', km2: 'acre', ft2: 'm2', acre: 'km2',
+  ml: 'tsp', l: 'gal', tsp: 'ml', tbsp: 'ml', cup: 'ml', gal: 'l',
+  kmh: 'mph', mph: 'kmh', mps: 'kmh',
+  // Digital sizes have no "other system", so these just step up a scale.
+  b: 'kb', kb: 'mb', mb: 'gb', gb: 'mb', tb: 'gb',
   c: 'f', f: 'c', k: 'c',
 };
 
@@ -95,6 +136,10 @@ export function defaultTarget(category, id, preferredSystem = 'metric') {
   const want = from === preferredSystem
     ? (preferredSystem === 'metric' ? 'imperial' : 'metric')
     : preferredSystem;
+
+  // m/s is a scientific unit rather than an everyday one, so we always show it
+  // as km/h regardless of which system the user prefers.
+  if (id === 'mps') return 'kmh';
 
   const paired = PAIRS[id];
   if (paired && (category === 'temperature' || unitSystem(category, paired) === want)) return paired;
