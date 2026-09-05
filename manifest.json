@@ -10,7 +10,9 @@
     "type": "module"
   },
 
-  "permissions": ["contextMenus"],
+  "permissions": ["contextMenus", "storage"],
+
+  "host_permissions": ["https://open.er-api.com/"],
 
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'"
