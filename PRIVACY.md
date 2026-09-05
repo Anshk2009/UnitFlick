@@ -21,6 +21,8 @@ Three things, all stored by the browser rather than by any server of mine:
 | What | Where | Why | How long |
 | --- | --- | --- | --- |
 | Your settings | `chrome.storage.sync` | Target currency, unit system, precision, enabled categories, refresh interval | Until you change them or uninstall |
+| Exchange-rate table | `chrome.storage.local` | So a conversion does not need a network call every time | Refreshed on the interval you set (default 6 hours); a table older than 7 days is discarded rather than used |
+| The most recent conversion result | `chrome.storage.session` | So the toolbar popup can show the result you just got | Overwritten by the next conversion, and cleared when you close the browser |
 
 One honest caveat about that first row: `chrome.storage.sync` means the browser
 syncs those settings to your other signed-in devices, which is the point — but
@@ -31,9 +33,6 @@ in them (see the validation in
 ever be anything but a currency code, a unit system, or a small number). If you
 would rather they never left the device, sign out of browser sync or turn off
 extension syncing in your browser's settings.
-
-| Exchange-rate table | `chrome.storage.local` | So a conversion does not need a network call every time | Refreshed on the interval you set (default 6 hours); a table older than 7 days is discarded rather than used |
-| The most recent conversion result | `chrome.storage.session` | So the toolbar popup can show the result you just got | Overwritten by the next conversion, and cleared when you close the browser |
 
 The last one is a single result — the formatted input and output, e.g.
 `20 km` → `12.43 mi`. It is not a history. There is no history.
