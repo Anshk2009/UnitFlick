@@ -1,0 +1,33 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # No `npm ci` on purpose: UnitFlick has no dependencies, so there is
+      # nothing to install and no lockfile to trust.
+      - name: Tests
+        run: npm test
+
+      - name: Security audit
+        run: npm run audit
+
+      - name: Package
+        run: python tools/build.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unitflick-unpacked
+          path: dist/*.zip
+          if-no-files-found: error
