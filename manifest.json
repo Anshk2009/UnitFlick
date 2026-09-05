@@ -10,7 +10,7 @@
     "type": "module"
   },
 
-  "permissions": ["contextMenus", "storage"],
+  "permissions": ["contextMenus", "storage", "activeTab", "scripting"],
 
   "host_permissions": ["https://open.er-api.com/"],
 
