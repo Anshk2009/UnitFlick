@@ -5,6 +5,11 @@
   "description": "Highlight text, right-click, convert. Units and currencies, privacy-first.",
   "homepage_url": "https://github.com/Anshk2009/UnitFlick",
 
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+
   "permissions": [],
 
   "content_security_policy": {
