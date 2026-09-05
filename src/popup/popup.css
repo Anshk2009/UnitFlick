@@ -1,0 +1,51 @@
+:root { color-scheme: light dark; }
+
+body {
+  width: 240px;
+  margin: 0;
+  padding: 12px 14px 14px;
+  font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #ffffff;
+  color: #1c1c1e;
+}
+
+h1 { font-size: 13px; margin: 0 0 10px; letter-spacing: 0.02em; }
+.hint { color: #6b7076; margin: 0; }
+.from { color: #6b7076; font-size: 12px; }
+.to { font-size: 18px; font-weight: 600; margin-top: 2px; word-break: break-word; }
+.note { color: #6b7076; font-size: 11px; margin-top: 6px; }
+.note.stale { color: #a06a00; }
+.error { color: #b3261e; margin: 0; }
+
+button {
+  font: inherit;
+  font-size: 12px;
+  margin-top: 10px;
+  padding: 3px 10px;
+  border: 1px solid #d0d3d8;
+  border-radius: 6px;
+  background: #f4f5f7;
+  color: inherit;
+  cursor: pointer;
+}
+button:hover { background: #e9ebee; }
+
+.link {
+  border: none;
+  background: none;
+  padding: 0;
+  margin-top: 12px;
+  color: #4a5bd7;
+  text-decoration: underline;
+}
+.link:hover { background: none; }
+
+@media (prefers-color-scheme: dark) {
+  body { background: #1e1f22; color: #f2f2f2; }
+  .hint, .from, .note { color: #9aa0a6; }
+  .note.stale { color: #e8b339; }
+  .error { color: #ff9a8a; }
+  button { background: #33353a; border-color: #4a4d52; }
+  button:hover { background: #3d4046; }
+  .link { color: #93a4ff; background: none; }
+}

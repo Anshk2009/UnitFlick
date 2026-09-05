@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>UnitFlick</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <h1>UnitFlick</h1>
+
+    <!-- Filled in by popup.js with textContent. No inline script: the CSP in
+         manifest.json only allows scripts from the extension itself. -->
+    <div id="result" class="result">
+      <p id="empty" class="hint">Highlight a value on any page, right-click, and
+        choose “UnitFlick → Convert”.</p>
+      <div id="conversion" hidden>
+        <div id="from" class="from"></div>
+        <div id="to" class="to"></div>
+        <div id="note" class="note"></div>
+        <button id="copy" type="button">Copy</button>
+      </div>
+      <p id="error" class="error" hidden></p>
+    </div>
+
+    <button id="options" type="button" class="link">Settings</button>
+
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>
