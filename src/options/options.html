@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>UnitFlick settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <h1>UnitFlick settings</h1>
+
+    <label class="field">
+      <span>Convert currencies into</span>
+      <!-- Options are filled in from the supported-currency list in code, so
+           an arbitrary code can never end up selected. -->
+      <select id="targetCurrency"></select>
+    </label>
+
+    <label class="field">
+      <span>Preferred unit system</span>
+      <select id="unitSystem">
+        <option value="metric">Metric</option>
+        <option value="imperial">Imperial</option>
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Decimal places</span>
+      <input id="precision" type="number" min="0" max="6" step="1" />
+    </label>
+
+    <label class="field">
+      <span>Refresh exchange rates every (hours)</span>
+      <input id="rateRefreshHours" type="number" min="1" max="72" step="1" />
+    </label>
+
+    <fieldset>
+      <legend>Enabled conversions</legend>
+      <div id="categories" class="categories"></div>
+    </fieldset>
+
+    <div class="actions">
+      <button id="save" type="button">Save</button>
+      <span id="status" class="status" role="status"></span>
+    </div>
+
+    <p class="footnote">
+      UnitFlick stores these settings in your browser only. Unit conversions
+      happen entirely on your device; exchange rates come from open.er-api.com.
+    </p>
+
+    <script src="options.js" type="module"></script>
+  </body>
+</html>
