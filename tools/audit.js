@@ -196,6 +196,44 @@ if (/unsafe-inline|unsafe-eval|wasm-unsafe-eval/.test(csp)) fail('strict CSP', '
 if (!/object-src\s+'none'/.test(csp)) fail('strict CSP', "object-src must be 'none'");
 if (!failures.some((f) => f.startsWith('strict CSP'))) pass('strict CSP');
 
+// ------------------------------------------------- manifest references
+
+// A manifest pointing at a file that is not there is a broken extension that
+// still passes every other check, so confirm each referenced path exists.
+const referenced = [
+  manifest.background && manifest.background.service_worker,
+  manifest.action && manifest.action.default_popup,
+  manifest.options_page,
+  ...Object.values(manifest.icons || {}),
+];
+
+let missing = false;
+for (const path of referenced.filter(Boolean)) {
+  try {
+    statSync(join(ROOT, path));
+  } catch {
+    fail('manifest references exist', `${path} is referenced but missing`);
+    missing = true;
+  }
+}
+
+// The reverse direction: every script an HTML page loads must exist too.
+for (const { path, text } of sources) {
+  if (!path.endsWith('.html')) continue;
+  const dir = path.split('/').slice(0, -1).join('/');
+  for (const match of text.matchAll(/(?:src|href)\s*=\s*["']([^"']+)["']/g)) {
+    const ref = match[1];
+    if (/^(https?:|data:|#)/.test(ref)) continue;
+    try {
+      statSync(join(ROOT, dir, ref));
+    } catch {
+      fail('page references exist', `${path} loads ${ref}, which is missing`);
+      missing = true;
+    }
+  }
+}
+if (!missing) pass('every referenced file exists');
+
 // ---------------------------------------------------------- dependencies
 
 const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
