@@ -18,9 +18,14 @@
 export function renderResult(result) {
   const HOST_ID = 'unitflick-result-host';
 
-  // Replace any card left over from a previous conversion.
+  // Replace any card left over from a previous conversion. The old card is
+  // asked to clean itself up first, otherwise its keydown listener would be
+  // left behind on the page once its element is gone.
   const existing = document.getElementById(HOST_ID);
-  if (existing) existing.remove();
+  if (existing) {
+    existing.dispatchEvent(new Event('unitflick-dismiss'));
+    existing.remove();
+  }
 
   const host = document.createElement('div');
   host.id = HOST_ID;
@@ -28,6 +33,20 @@ export function renderResult(result) {
 
   // Closed mode: page scripts cannot reach in through host.shadowRoot.
   const root = host.attachShadow({ mode: 'closed' });
+
+  // Defined up front because both the Close button and the Escape key need it.
+  // Every exit path goes through here, so the page is never left holding a
+  // listener for a card that is gone.
+  const onKey = (event) => { if (event.key === 'Escape') dismiss(); };
+  const dismiss = () => {
+    clearTimeout(timer);
+    document.removeEventListener('keydown', onKey, true);
+    host.remove();
+  };
+  // Cards should not linger. 12s is long enough to read and copy.
+  const timer = setTimeout(() => dismiss(), 12000);
+  document.addEventListener('keydown', onKey, true);
+  host.addEventListener('unitflick-dismiss', dismiss);
 
   const style = document.createElement('style');
   style.textContent = `
@@ -89,7 +108,7 @@ export function renderResult(result) {
 
     const close = document.createElement('button');
     close.textContent = 'Close';
-    close.addEventListener('click', () => host.remove());
+    close.addEventListener('click', dismiss);
 
     row.append(copy, close);
     card.appendChild(row);
@@ -128,14 +147,4 @@ export function renderResult(result) {
   }
   host.style.top = `${Math.max(8, top)}px`;
   host.style.left = `${Math.max(8, left)}px`;
-
-  const dismiss = () => {
-    host.remove();
-    document.removeEventListener('keydown', onKey, true);
-  };
-  const onKey = (event) => { if (event.key === 'Escape') dismiss(); };
-  document.addEventListener('keydown', onKey, true);
-
-  // Cards should not linger. 12s is long enough to read and copy.
-  setTimeout(dismiss, 12000);
 }
