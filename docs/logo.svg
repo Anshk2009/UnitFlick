@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="UnitFlick">
+  <title>UnitFlick</title>
+  <rect width="100" height="100" rx="22.0" fill="#ffffff"/>
+  <g fill="none" stroke="#0a7cff" stroke-width="7.0"
+     stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="14.0,70.0 41.0,70.0 77.5,33.5 86.0,42.0 86.0,9.5 53.5,9.5 62.0,18.0 32.0,48.0 14.0,48.0"/>
+    <line x1="23.0" y1="48.0" x2="23.0" y2="57.0"/>
+    <line x1="30.5" y1="48.0" x2="30.5" y2="57.0"/>
+    <line x1="38.0" y1="42.0" x2="38.0" y2="51.0"/>
+    <line x1="45.5" y1="34.5" x2="45.5" y2="43.5"/>
+  </g>
+</svg>

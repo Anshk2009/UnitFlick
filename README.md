@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="icons/icon128.png" width="76" alt="UnitFlick">
+<img src="docs/logo.svg" width="88" alt="UnitFlick">
 
 # UnitFlick
 
@@ -172,7 +172,8 @@ npm run build # package dist/unitflick-<version>.zip
 
 Node 18+. Nothing to install — `package.json` has no dependencies and none
 should be added lightly. Icons are generated, not committed as opaque
-binaries: `python tools/make-icons.py`.
+binaries: `python tools/make-icons.py` regenerates the mark and every icon
+size from one set of coordinates (needs Pillow).
 
 <details>
 <summary><b>Architecture</b></summary>
