@@ -12,6 +12,15 @@ import { resolveUnit, convert, unitLabel, defaultTarget } from '../converters/un
 import { resolveCurrency, convertCurrency } from '../converters/currency.js';
 import { formatNumber, formatAge } from '../utils/format.js';
 
+// Only echo a selection back to the user if it looks like a unit name. The card
+// renders with textContent so markup could never execute, but repeating an
+// attacker-chosen string in our own UI is still not something we want to do.
+const UNIT_LIKE = /^[\p{L}°²³/.\s]{1,12}$/u;
+
+function describeSymbol(symbol) {
+  return UNIT_LIKE.test(symbol) ? `"${symbol}"` : 'That';
+}
+
 /**
  * @typedef {Object} ConversionResult
  * @property {boolean} ok
@@ -49,7 +58,7 @@ export async function runConversion(selection, settings, getRates) {
 
   const unit = resolveUnit(symbol);
   if (!unit) {
-    return { ok: false, error: `"${symbol}" is not a unit UnitFlick knows.` };
+    return { ok: false, error: `${describeSymbol(symbol)} is not a unit UnitFlick knows.` };
   }
   if (!enabled.includes(unit.category)) {
     return { ok: false, error: `${unit.category} conversion is turned off in settings.` };

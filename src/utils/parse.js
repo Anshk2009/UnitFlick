@@ -18,6 +18,11 @@ export const MAX_INPUT_LENGTH = 120;
 // (NBSP, narrow NBSP, thin space, figure space, en/em spaces, ideographic space...)
 const UNICODE_SPACES = /[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g;
 
+// Invisible control and formatting characters: C0/C1 controls, bidi overrides,
+// zero-width joiners, the BOM. Stripped outright — they can only ever be used to
+// make a string display as something other than what it is.
+const INVISIBLES = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF]/g;
+
 // Characters used as "fancy" minus signs.
 const UNICODE_MINUS = /[\u2212\u2012\u2013\u2014]/g;
 
@@ -36,6 +41,7 @@ export function normalize(raw) {
     s = capped; // normalize() can throw on lone surrogates; degrade gracefully.
   }
   return s
+    .replace(INVISIBLES, '')
     .replace(UNICODE_SPACES, ' ')
     .replace(UNICODE_MINUS, '-')
     .replace(/\s+/g, ' ') // collapse runs of whitespace
