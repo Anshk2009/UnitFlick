@@ -48,20 +48,6 @@ do the job, then make sure it can't do anything else.
 - **It keeps no history.** One result in session storage, overwritten each
   time, gone when you close the browser.
 
-## Install
-
-Not on the extension stores yet, so load it from source:
-
-```bash
-git clone https://github.com/Anshk2009/UnitFlick.git
-```
-
-1. Open `chrome://extensions` (or `edge://extensions`)
-2. Turn on **Developer mode**
-3. **Load unpacked** → pick the cloned folder
-
-Chromium browsers (Chrome, Edge, Brave, Arc, Opera). Firefox is on the roadmap.
-
 ## Use it
 
 Highlight → right-click → **UnitFlick → Convert**.
@@ -141,6 +127,24 @@ how much of it — at most once every 6 hours, and never more than once a minute
 Full detail, including exactly what is stored and for how long, is in
 [PRIVACY.md](PRIVACY.md).
 
+<details>
+<summary><b>Permissions, and why each one is there</b></summary>
+
+<br>
+
+| Permission | Why |
+| --- | --- |
+| `contextMenus` | The right-click menu item |
+| `storage` | Settings and the cached rate table |
+| `activeTab` | Show the card in the tab you just used the menu in |
+| `scripting` | Inject that card |
+| `https://open.er-api.com/` | The only host UnitFlick may contact |
+
+Note what is missing: no `tabs`, no `webRequest`, no `cookies`, no host
+permission on webpages. `tools/audit.js` fails the build if any of those appear.
+
+</details>
+
 ## Security
 
 Every webpage is assumed hostile, and so is every byte the API returns.
@@ -159,24 +163,8 @@ It fails the build on secrets, `eval`, `innerHTML`, inline scripts, `http://`
 URLs, computed fetch arguments, unexpected permissions, a weakened CSP, or a
 manifest pointing at a file that isn't there.
 
-## Development
-
-No build step. What is in `src/` is what runs.
-
-```bash
-npm test      # 54 tests, Node's built-in runner
-npm run audit # 12 security checks
-npm run check # both
-npm run build # package dist/unitflick-<version>.zip
-```
-
-Node 18+. Nothing to install — `package.json` has no dependencies and none
-should be added lightly. Icons are generated, not committed as opaque
-binaries: `python tools/make-icons.py` regenerates the mark and every icon
-size from one set of coordinates (needs Pillow).
-
 <details>
-<summary><b>Architecture</b></summary>
+<summary><b>How it is put together</b></summary>
 
 <br>
 
@@ -217,32 +205,6 @@ self-contained — no imports, no closure variables.
 is one entry in the list in `currency.js`.
 
 </details>
-
-<details>
-<summary><b>Permissions, and why each one is there</b></summary>
-
-<br>
-
-| Permission | Why |
-| --- | --- |
-| `contextMenus` | The right-click menu item |
-| `storage` | Settings and the cached rate table |
-| `activeTab` | Show the card in the tab you just used the menu in |
-| `scripting` | Inject that card |
-| `https://open.er-api.com/` | The only host UnitFlick may contact |
-
-Note what is missing: no `tabs`, no `webRequest`, no `cookies`, no host
-permission on webpages. `tools/audit.js` fails the build if any of those appear.
-
-</details>
-
-## Roadmap
-
-- [ ] Firefox support (MV3 service-worker and `browser.*` differences)
-- [ ] Keyboard shortcut, so the mouse is optional
-- [ ] Pick the target unit from the card, not just settings
-- [ ] Better handling of ambiguous symbols (`$`, `¥`, `kr`)
-- [ ] Compound units — `5 ft 9 in`
 
 ## Contributing
 
