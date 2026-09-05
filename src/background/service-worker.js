@@ -8,6 +8,10 @@
 
 const MENU_ID = 'unitflick-convert';
 
+// Nothing sensible to convert is longer than this. Cutting early means we never
+// hand a multi-megabyte selection to the parser.
+const MAX_SELECTION = 200;
+
 // The menu only exists on text selections, which is also why we never need a
 // content script running on every page.
 chrome.runtime.onInstalled.addListener(() => {
@@ -20,7 +24,20 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+/**
+ * Pull the highlighted text out of the context-menu event.
+ * Treated as fully untrusted: it is whatever text happened to be on the page.
+ * @returns {string} a bounded string, possibly empty
+ */
+function readSelection(info) {
+  const raw = info && info.selectionText;
+  if (typeof raw !== 'string') return '';
+  return raw.slice(0, MAX_SELECTION);
+}
+
 chrome.contextMenus.onClicked.addListener((info) => {
   if (info.menuItemId !== MENU_ID) return;
-  console.log('UnitFlick: selection received');
+  const selection = readSelection(info);
+  if (!selection) return;
+  console.log('UnitFlick: got selection of', selection.length, 'chars');
 });
