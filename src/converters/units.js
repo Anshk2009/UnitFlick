@@ -30,6 +30,14 @@ const UNITS = {
   },
 };
 
+// Temperature is scale + offset, not just a scale, so it cannot live in the
+// factor tables above and gets its own pair of conversions below.
+const TEMPERATURE = {
+  c: { label: '°C', system: 'metric', aliases: ['°c', 'celsius', 'centigrade'] },
+  f: { label: '°F', system: 'imperial', aliases: ['°f', 'fahrenheit'] },
+  k: { label: 'K', system: 'metric', aliases: ['kelvin'] },
+};
+
 /**
  * Lookup table built once at load: lowercased alias -> {category, id}.
  * Object.create(null) has no prototype, so a selection of "__proto__" or
@@ -47,6 +55,7 @@ function register(category, id, def) {
 for (const [category, group] of Object.entries(UNITS)) {
   for (const [id, def] of Object.entries(group.units)) register(category, id, def);
 }
+for (const [id, def] of Object.entries(TEMPERATURE)) register('temperature', id, def);
 
 /** Resolve a raw symbol from the parser to a known unit, or null if unsupported. */
 export function resolveUnit(symbol) {
@@ -58,11 +67,13 @@ export function resolveUnit(symbol) {
 
 /** Human-readable label for a resolved unit id. */
 export function unitLabel(category, id) {
+  if (category === 'temperature') return TEMPERATURE[id] ? TEMPERATURE[id].label : id;
   const g = UNITS[category];
   return g && g.units[id] ? g.units[id].label : id;
 }
 
 function unitSystem(category, id) {
+  if (category === 'temperature') return TEMPERATURE[id] && TEMPERATURE[id].system;
   const g = UNITS[category];
   return g && g.units[id] && g.units[id].system;
 }
@@ -71,6 +82,7 @@ function unitSystem(category, id) {
 const PAIRS = {
   mm: 'in', cm: 'in', m: 'ft', km: 'mi', in: 'cm', ft: 'm', yd: 'm', mi: 'km',
   mg: 'oz', g: 'oz', kg: 'lb', oz: 'g', lb: 'kg',
+  c: 'f', f: 'c', k: 'c',
 };
 
 /**
@@ -85,12 +97,26 @@ export function defaultTarget(category, id, preferredSystem = 'metric') {
     : preferredSystem;
 
   const paired = PAIRS[id];
-  if (paired && unitSystem(category, paired) === want) return paired;
+  if (paired && (category === 'temperature' || unitSystem(category, paired) === want)) return paired;
+  if (category === 'temperature') return id === 'c' ? 'f' : 'c';
 
   const group = UNITS[category];
   if (!group) return paired || id;
   const match = Object.entries(group.units).find(([other, def]) => other !== id && def.system === want);
   return match ? match[0] : (paired || id);
+}
+
+function convertTemperature(value, from, to) {
+  let c; // everything routes via Celsius
+  if (from === 'c') c = value;
+  else if (from === 'f') c = (value - 32) * (5 / 9);
+  else if (from === 'k') c = value - 273.15;
+  else return null;
+
+  if (to === 'c') return c;
+  if (to === 'f') return c * (9 / 5) + 32;
+  if (to === 'k') return c + 273.15;
+  return null;
 }
 
 /**
@@ -100,6 +126,10 @@ export function defaultTarget(category, id, preferredSystem = 'metric') {
  */
 export function convert(value, category, fromId, toId) {
   if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  if (category === 'temperature') {
+    const r = convertTemperature(value, fromId, toId);
+    return Number.isFinite(r) ? r : null;
+  }
   const group = UNITS[category];
   if (!group) return null;
   const has = (id) => Object.prototype.hasOwnProperty.call(group.units, id);
@@ -110,8 +140,9 @@ export function convert(value, category, fromId, toId) {
 
 /** All unit ids in a category — used by the popup's "convert to" dropdown. */
 export function unitsIn(category) {
+  if (category === 'temperature') return Object.keys(TEMPERATURE);
   return UNITS[category] ? Object.keys(UNITS[category].units) : [];
 }
 
 /** Category ids, for the options page's "enabled categories" checkboxes. */
-export const CATEGORIES = Object.keys(UNITS);
+export const CATEGORIES = [...Object.keys(UNITS), 'temperature'];
