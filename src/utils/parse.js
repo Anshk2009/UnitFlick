@@ -48,11 +48,13 @@ export function normalize(raw) {
  * Every quantifier has an explicit upper bound, and none of them are nested,
  * so matching is linear in the input length. That is what makes it ReDoS-proof.
  *
- *   prefix  = up to 5 non-digit, non-space "symbol" chars   e.g. "$", "US$", "₹"
+ *   prefix  = up to 5 symbol chars (no digits, spaces or signs)  e.g. "$", "US$", "₹"
+ *             signs are excluded so "-40 C" reads as a negative number,
+ *             not as a prefix of "-" plus a suffix of "C".
  *   number  = digits with optional , . group/decimal separators
  *   suffix  = up to 12 chars of unit text                   e.g. "km/h", "°F", "MB"
  */
-const PATTERN = /^([^\d\s]{0,5})\s?(-?\d{1,20}(?:[.,]\d{1,3}){0,6}|-?[.,]\d{1,20})\s?([^\d]{0,12})$/u;
+const PATTERN = /^([^\d\s+.,-]{0,5})\s?(-?\d{1,20}(?:[.,]\d{1,3}){0,6}|-?[.,]\d{1,20})\s?([^\d]{0,12})$/u;
 
 /**
  * Step 2: work out what the digits mean.
