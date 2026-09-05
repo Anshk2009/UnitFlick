@@ -89,6 +89,12 @@ The audit script checks the built extension for secrets, dangerous APIs, HTTP
 URLs, unexpected permissions and CSP weaknesses. Both should pass before any
 release.
 
+## Past audits
+
+The full review of 0.1.0, including the eight findings that were fixed before
+release, is in
+[docs/security-audit-0.1.0.md](docs/security-audit-0.1.0.md).
+
 ## Scope
 
 In scope: anything in this repository.
