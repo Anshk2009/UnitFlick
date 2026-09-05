@@ -17,6 +17,8 @@ const RATES_URL = Object.freeze('https://open.er-api.com/v6/latest/USD');
 const PROVIDER = 'open.er-api.com';
 
 const REQUEST_TIMEOUT_MS = 8000;
+// Generous: the full table is around 5 KB.
+const MAX_RESPONSE_BYTES = 256 * 1024;
 
 // How long a cached table is considered current.
 export const DEFAULT_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
@@ -94,6 +96,12 @@ export async function fetchRates(fetchImpl = fetch) {
 
   if (!response || !response.ok) return null; // covers 4xx, 5xx and 429
 
+  // The real table is ~5 KB. If the provider is ever compromised or replaced,
+  // response.json() would happily buffer a gigabyte into the service worker,
+  // so refuse anything implausible before reading the body.
+  const declaredLength = Number(response.headers && response.headers.get('content-length'));
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_RESPONSE_BYTES) return null;
+
   let json;
   try {
     json = await response.json();
@@ -151,11 +159,15 @@ export async function getRates(ttlMs = DEFAULT_TTL_MS) {
     return { ...cached, stale: false };
   }
 
-  // Rate-limit our own retries so a failing provider cannot be hammered.
+  // If a request is already running, wait for it instead of starting another
+  // or reporting a failure we do not actually have yet.
+  // Otherwise rate-limit our own retries so a failing provider is not hammered.
   const canRetry = now - lastAttemptAt > MIN_REFETCH_INTERVAL_MS;
-  if (canRetry) {
-    lastAttemptAt = now;
-    inFlight = inFlight || fetchRates().finally(() => { inFlight = null; });
+  if (inFlight || canRetry) {
+    if (!inFlight) {
+      lastAttemptAt = now;
+      inFlight = fetchRates().finally(() => { inFlight = null; });
+    }
     const fresh = await inFlight;
     if (fresh) {
       try {

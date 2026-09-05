@@ -97,3 +97,19 @@ test('the provider URL is fixed and https', async () => {
   assert.equal(seen.options.referrerPolicy, 'no-referrer');
   assert.ok(seen.options.signal, 'a timeout signal must be set');
 });
+
+test('an implausibly large response is refused before it is buffered', async () => {
+  let bodyRead = false;
+  const huge = async () => ({
+    ok: true,
+    headers: { get: (name) => (name === 'content-length' ? '900000000' : null) },
+    json: async () => { bodyRead = true; return good; },
+  });
+  assert.equal(await fetchRates(huge), null);
+  assert.equal(bodyRead, false, 'the body must not be read at all');
+});
+
+test('a response with no content-length is still processed', async () => {
+  const noHeader = async () => ({ ok: true, headers: { get: () => null }, json: async () => good });
+  assert.ok(await fetchRates(noHeader));
+});
