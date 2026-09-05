@@ -24,38 +24,45 @@ SIZES = (16, 48, 128)
 BLUE = (10, 124, 255)
 WHITE = (255, 255, 255)
 
-STROKE = 7.0          # line thickness, on the 100x100 grid
+STROKE = 6.5          # line thickness, on the 100x100 grid
 CORNER_RADIUS = 22.0  # of the white rounded square behind the mark
 
-# The silhouette of the tape measure, traced once clockwise.
+# The silhouette of the tape measure, traced once clockwise from the
+# bottom-left corner:
 #
-#   1-2  the bottom edge of the ruler, running right
-#   3    it bends 45 degrees and climbs toward the arrow
-#   4-6  the arrowhead: out to the lower barb, up to the tip, back along the top
-#   7-8  down the upper side of the shaft to where the ruler's top edge starts
-#   9    the top edge, running back left
+#   1-2   the bottom edge, running right
+#   3     the bend: a 45-degree climb toward the arrow
+#   4-6   the arrowhead — out to the lower barb, up the right edge, back
+#         along the top edge to the upper barb
+#   7     the notch where the head rejoins the shaft
+#   8-9   down the upper side of the shaft, then the top edge back to the start
 #
-# Points 3 and 7 sit on two parallel 45-degree lines exactly STROKE-widths
-# apart, which is what keeps the bend the same thickness as the straight part.
+# The two sides of the diagonal shaft are the parallel lines x + y = 98 and
+# x + y = 121.3. Keeping every diagonal point on one of those two lines is
+# what makes the bend the same visual weight as the straight section, and the
+# arrowhead is mirrored about the axis halfway between them.
+UPPER_SIDE = 98.0
+LOWER_SIDE = 121.3
+
 OUTLINE = [
-    (14.0, 70.0),    # 1  bottom-left
-    (41.0, 70.0),    # 2  bottom edge, up to the bend
-    (77.5, 33.5),    # 3  diagonal, lower side
-    (86.0, 42.0),    # 4  lower barb
-    (86.0, 9.5),     # 5  the tip
-    (53.5, 9.5),     # 6  upper barb
-    (62.0, 18.0),    # 7  back to the shaft
-    (32.0, 48.0),    # 8  diagonal, upper side
-    (14.0, 48.0),    # 9  top edge, back to the start
+    (13.9, 69.3),    # 1  bottom-left
+    (52.0, 69.3),    # 2  bottom edge, up to the bend
+    (74.65, 46.65),  # 3  diagonal, lower side
+    (80.65, 52.15),  # 4  lower barb
+    (80.65, 29.0),   # 5  top-right corner — the point of the arrow
+    (57.5, 29.0),    # 6  upper barb
+    (63.0, 35.0),    # 7  the notch, back onto the shaft
+    (50.9, 47.1),    # 8  diagonal, upper side
+    (13.9, 47.1),    # 9  top edge, back to the start
 ]
 
-# Measuring ticks hanging off the inside of the top edge. Where that edge has
-# already started to climb, the tick starts higher too — so they follow the
-# bend instead of ignoring it.
-TICK_XS = (23.0, 30.5, 38.0, 45.5)
-TICK_LENGTH = 9.0
-DIAGONAL_C = 80.0  # the upper edge is the line x + y = 80 past the bend
-RULER_TOP_Y = 48.0
+# Measuring ticks hanging off the inside of the top edge. The last one is
+# already past the bend, so it starts higher and follows the diagonal instead
+# of ignoring it.
+TICK_XS = (22.0, 29.5, 37.0, 44.5, 52.0)
+TICK_LENGTH = 10.0
+RULER_TOP_Y = 47.1
+BEND_X = 50.9  # where the top edge stops being flat
 
 
 def tick_segments():
@@ -63,7 +70,7 @@ def tick_segments():
     segments = []
     for x in TICK_XS:
         # Follow the top edge: flat until the bend, then the 45-degree line.
-        top = RULER_TOP_Y if x <= 32.0 else DIAGONAL_C - x
+        top = RULER_TOP_Y if x <= BEND_X else UPPER_SIDE - x
         segments.append(((x, top), (x, top + TICK_LENGTH)))
     return segments
 
