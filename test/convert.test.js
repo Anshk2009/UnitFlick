@@ -157,3 +157,14 @@ test('rate age is described in human terms', () => {
   assert.equal(formatAge(now - 3 * 86400e3, now), '3 d ago');
   assert.equal(formatAge('nope'), 'unknown');
 });
+
+test('lookup tables cannot be reached through the prototype chain', () => {
+  // Nothing should be able to ask "what does __proto__ convert to?" and get
+  // an answer that came from Object.prototype.
+  for (const key of ['__proto__', 'constructor', 'toString', 'valueOf']) {
+    assert.equal(resolveUnit(key), null);
+    const target = defaultTarget('length', key, 'metric');
+    assert.equal(typeof target, 'string');
+    assert.equal(convert(1, 'length', key, 'm'), null);
+  }
+});

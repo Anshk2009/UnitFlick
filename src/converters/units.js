@@ -115,7 +115,10 @@ function unitSystem(category, id) {
 }
 
 // Opinionated pairings so "1 km" gives "mi" rather than "in".
-const PAIRS = {
+// Prototype-less like INDEX: PAIRS['constructor'] must be undefined, not a
+// function. Nothing reaches this with an unvalidated id today, but a lookup
+// table that can answer questions nobody asked is a trap for the next change.
+const PAIRS = Object.assign(Object.create(null), {
   mm: 'in', cm: 'in', m: 'ft', km: 'mi', in: 'cm', ft: 'm', yd: 'm', mi: 'km',
   mg: 'oz', g: 'oz', kg: 'lb', oz: 'g', lb: 'kg',
   m2: 'ft2', km2: 'acre', ft2: 'm2', acre: 'km2',
@@ -124,7 +127,7 @@ const PAIRS = {
   // Digital sizes have no "other system", so these just step up a scale.
   b: 'kb', kb: 'mb', mb: 'gb', gb: 'mb', tb: 'gb',
   c: 'f', f: 'c', k: 'c',
-};
+});
 
 /**
  * Pick what to convert INTO: show the user the *other* measurement system.
