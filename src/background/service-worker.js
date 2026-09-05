@@ -72,11 +72,25 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   // Kept as a promise chain rather than an async listener so the worker is not
   // torn down mid-conversion.
   (async () => {
-    const settings = await loadSettings();
-    const result = await runConversion(selection, settings, getRates);
+    let result;
+    try {
+      const settings = await loadSettings();
+      result = await runConversion(selection, settings, getRates);
+    } catch {
+      // Nothing in the pipeline is supposed to throw, but if it ever does the
+      // user should still see something rather than nothing at all.
+      result = { ok: false, error: 'UnitFlick could not complete that conversion.' };
+    }
+
     // Remember only the latest result so the toolbar popup can show it too.
     // It is overwritten every time — UnitFlick keeps no conversion history.
-    await chrome.storage.session.set({ lastResult: result });
+    // A failure to store it must not stop the card from appearing.
+    try {
+      await chrome.storage.session.set({ lastResult: result });
+    } catch {
+      // Session storage unavailable; the on-page card still works.
+    }
+
     await showOnPage(tab.id, result);
   })();
 });
