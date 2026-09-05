@@ -136,3 +136,11 @@ test('no settings value can ever be a URL or contain markup', () => {
     assert.ok(!/[<>]|https?:|javascript:/i.test(text), `unexpected value: ${text}`);
   }
 });
+
+test('sanitized settings never share state with the defaults', () => {
+  const a = sanitizeSettings(null);
+  const b = sanitizeSettings(null);
+  a.enabledCategories.push('pwned');
+  assert.equal(b.enabledCategories.includes('pwned'), false);
+  assert.equal(DEFAULTS.enabledCategories.includes('pwned'), false);
+});

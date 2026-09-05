@@ -14,7 +14,9 @@ export const DEFAULTS = Object.freeze({
   targetCurrency: 'USD',
   unitSystem: 'metric',      // 'metric' | 'imperial'
   precision: 2,              // decimal places, 0-6
-  enabledCategories: [...CATEGORIES, 'currency'],
+  // Frozen too: Object.freeze is shallow, and without this a caller that
+  // mutates its own settings object would corrupt the defaults for everyone.
+  enabledCategories: Object.freeze([...CATEGORIES, 'currency']),
   rateRefreshHours: 6,       // 1-72
 });
 
@@ -26,7 +28,8 @@ const ALL_CATEGORIES = new Set([...CATEGORIES, 'currency']);
  * invalid values fall back to the default. Never throws.
  */
 export function sanitizeSettings(input) {
-  const out = { ...DEFAULTS };
+  // Copy the array rather than handing out a reference to the frozen default.
+  const out = { ...DEFAULTS, enabledCategories: [...DEFAULTS.enabledCategories] };
   if (!input || typeof input !== 'object' || Array.isArray(input)) return out;
 
   if (typeof input.targetCurrency === 'string' && CURRENCIES.includes(input.targetCurrency)) {
